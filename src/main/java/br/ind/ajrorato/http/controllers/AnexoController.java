@@ -21,7 +21,8 @@ public class AnexoController {
     private SalvarArquivoFtpUseCase salvarArquivoFtpUseCase;
 
     @PostMapping("/upload")
-    public UploadFileResponse salvarArquivoFtp(@RequestParam("file") MultipartFile file) {
+    public UploadFileResponse salvarArquivoFtp(@RequestParam("file") MultipartFile file,
+                                               @RequestParam("tipoAnexo") String tipoAnexo) {
         String fileName = salvarArquivoFtpUseCase.execute(file);
 
         String anexoDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()

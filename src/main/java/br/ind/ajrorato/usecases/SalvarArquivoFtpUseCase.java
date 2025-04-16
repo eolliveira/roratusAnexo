@@ -36,10 +36,11 @@ public class SalvarArquivoFtpUseCase {
                 throw new RuntimeException("Nome do arquivo inválido: " + nomeArquivo);
             }
 
+            // Cria o diretório se não existir antes de salvar
 
 
             // Cria o diretório se não existir "/ACORDOANEXO/IMAGEM/2025/123_nome_arquivo"
-            Path caminhoArquivo = this.urlArmazenamentoArquivos.resolve(nomeArquivo);
+            Path caminhoArquivo = this.urlArmazenamentoArquivos.resolve("ACORDOANEXO/IMAGEM/2025/" + nomeArquivo);
 
             // Cria o diretório se não existir e substitui o arquivo se já existir
             Files.copy(arquivo.getInputStream(), caminhoArquivo, StandardCopyOption.REPLACE_EXISTING);
