@@ -9,4 +9,9 @@ public class FileNotFoundException extends RuntimeException {
     public FileNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public FileNotFoundException(Exception e) {
+        super(e.getMessage(), e);
+    }
+
 }
