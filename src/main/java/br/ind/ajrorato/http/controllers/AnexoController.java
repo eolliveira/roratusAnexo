@@ -8,15 +8,13 @@ import br.ind.ajrorato.usecases.SalvarArquivoFtpUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/anexo")
@@ -25,26 +23,52 @@ public class AnexoController {
     private final SalvarArquivoFtpUseCase salvarArquivoFtpUseCase;
     private final BaixarArquivoFtpUseCase baixarArquivoFtpUseCase;
 
+    @Value("${ftp.server.dir}")
+    private String diretorioServidorFtp;
+
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(AnexoController.class);
 
-    @GetMapping("/download/{nomeArquivo:.+}")
-    public ResponseEntity<Resource> baixarAnexoFtp(@PathVariable("nomeArquivo") String nomeArquivo, HttpServletRequest request) throws IOException {
+    @GetMapping("/preview")
+    public ResponseEntity<Resource> baixarAnexoFtp(@RequestParam("path") String path, HttpServletRequest request) {
 
-        Resource resource = baixarArquivoFtpUseCase.execute(nomeArquivo);
+        String nomeArquivo = path.substring(path.lastIndexOf("/") + 1);
 
-        String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        Resource resource = baixarArquivoFtpUseCase.execute(path);
+
+        String contentType = request.getServletContext().getMimeType(nomeArquivo);
 
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
 
-        logger.info("Arquivo baixado: " + nomeArquivo);
+        //logger.info("Arquivo baixado: " + path);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                //.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomeArquivo + "\"")
                 .body(resource);
     }
+
+//    @GetMapping("/download")
+//    public ResponseEntity<Resource> baixarAnexoFtp(@RequestParam("diretorioArquivo") String diretorioArquivo, HttpServletRequest request) throws IOException {
+//
+//        String nomeArquivo = diretorioArquivo.substring(diretorioArquivo.lastIndexOf("/") + 1);
+//
+//        Resource resource = baixarArquivoFtpUseCase.execute(diretorioArquivo);
+//
+//        String contentType = request.getServletContext().getMimeType(nomeArquivo);
+//
+//        if (contentType == null) {
+//            contentType = "application/octet-stream";
+//        }
+//
+//        logger.info("Arquivo baixado: " + diretorioArquivo);
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType(contentType))
+//                //.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomeArquivo + "\"")
+//                .body(resource);
+//    }
 
 
     @PostMapping("/upload")
@@ -56,8 +80,8 @@ public class AnexoController {
         Anexo anexoSalvo = salvarArquivoFtpUseCase.execute(idAnexo, tipoAnexo, tipoConteudo, file);
 
         String anexoDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/anexo/download/")
-                .path(anexoSalvo.getNomeArquivo())
+                .path("/api/anexo/preview")
+                .queryParam("path",anexoSalvo.getDiretorioArquivoFtp())
                 .toUriString();
 
         return new SalvarAnexoResponse(
@@ -65,7 +89,7 @@ public class AnexoController {
                 anexoSalvo.getNomeArquivo(),
                 anexoSalvo.getTipoAnexo(),
                 anexoSalvo.getTipoConteudo(),
-                anexoSalvo.getUrlArquivoFtp(),
+                "ftp://" + diretorioServidorFtp + "/" + anexoSalvo.getDiretorioArquivoFtp(),
                 anexoDownloadUri,
                 anexoSalvo.getTamanhoArquivo()
         );

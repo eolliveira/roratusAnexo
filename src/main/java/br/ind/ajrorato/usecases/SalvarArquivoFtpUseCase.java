@@ -2,6 +2,7 @@ package br.ind.ajrorato.usecases;
 
 import br.ind.ajrorato.domain.model.Anexo;
 import br.ind.ajrorato.domain.repositories.AnexoRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 

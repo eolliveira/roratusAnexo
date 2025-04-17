@@ -7,10 +7,9 @@ import br.ind.ajrorato.domain.repositories.AnexoRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -21,6 +20,7 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class AnexoRepositoryImpl implements AnexoRepository {
+
     private final ClientFtpConfig clientFtpConfig;
 
     @Override
@@ -31,7 +31,7 @@ public class AnexoRepositoryImpl implements AnexoRepository {
             clientFtp.setFileType(FTP.BINARY_FILE_TYPE);
 
             String id_nomeAnexo = anexo.getIdAnexo().toString() + "_" + anexo.getNomeArquivo();
-            String diretorioPastas = "/" + anexo.getTipoAnexo()
+            String diretorioPastas = anexo.getTipoAnexo()
                                      + "/" + anexo.getTipoConteudo()
                                      + "/" + LocalDateTime.now().getYear()
                                      + "/" + LocalDateTime.now().getMonthValue();
@@ -45,8 +45,8 @@ public class AnexoRepositoryImpl implements AnexoRepository {
             if (!arquivoSalvo)
                 throw new FileUploadException("conteudo não foi salvo no servidor ftp");
 
-            anexo.setNomeArquivo(StringUtils.cleanPath((id_nomeAnexo)));
-            anexo.setUrlArquivoFtp("ftp://" + clientFtp.getRemoteAddress().getHostAddress() + diretorioAnexo);
+            anexo.setNomeArquivo((id_nomeAnexo));
+            anexo.setDiretorioArquivoFtp(diretorioAnexo);
             anexo.setTamanhoArquivo(arquivo.getSize());
 
             return anexo;
@@ -58,22 +58,25 @@ public class AnexoRepositoryImpl implements AnexoRepository {
     }
 
     @Override
-    public Resource baixar(String nomeArquivo) {
+    public Resource baixar(String diretorioArquivo) {
         FTPClient clientFtp = clientFtpConfig.executar();
 
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            boolean arquivoBaixado = clientFtp.retrieveFile(nomeArquivo, outputStream);
+            boolean arquivoBaixado = clientFtp.retrieveFile(diretorioArquivo, outputStream);
 
             if (!arquivoBaixado) {
                 throw new FileUploadException("arquivo não encontrado.");
             }
 
-            return new ByteArrayResource(outputStream.toByteArray());
+            String nomeArquivo = diretorioArquivo.substring(diretorioArquivo.lastIndexOf("/") + 1);
+
+            return new NamedByteArrayResource(outputStream.toByteArray(), nomeArquivo);
+            //return new ByteArrayResource(outputStream.toByteArray());
 
             //TODO(verificar essa excecao)
         } catch (Exception e) {
-            throw new FileUploadException("Erro ao baixar o arquivo " + nomeArquivo + " do servidor FTP: " + e.getMessage());
+            throw new FileUploadException("Erro ao baixar o arquivo " + diretorioArquivo + " do servidor FTP: " + e.getMessage());
         } finally {
             clientFtpConfig.desconectar(clientFtp);
         }

@@ -6,6 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AnexoRepository {
     Anexo salvar(Anexo anexo, MultipartFile arquivo);
-    Resource baixar(String nomeArquivo);
+    Resource baixar(String diretorioArquivo);
     Anexo apagar(Anexo arquivo);
 }

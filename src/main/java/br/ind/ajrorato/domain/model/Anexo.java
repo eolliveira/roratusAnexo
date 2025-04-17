@@ -9,8 +9,10 @@ public class Anexo {
     private String tipoAnexo;
     private String tipoConteudo;
     private String nomeArquivo;
-    private String urlArquivoFtp;
-    private String uriArquivoHttp;
+    private String diretorioArquivoFtp;
+
+    //TODO(Precisa? ou só é preciso enviar nas respostas?)
+    //private String urlArquivoPreview;
     private Long tamanhoArquivo;
 
     public Anexo(Long idAnexo, String nomeArquivo, String tipoAnexo, String tipoConteudo) {
@@ -63,21 +65,21 @@ public class Anexo {
         this.nomeArquivo = nomeArquivo;
     }
 
-    public String getUrlArquivoFtp() {
-        return urlArquivoFtp;
+    public String getDiretorioArquivoFtp() {
+        return diretorioArquivoFtp;
     }
 
-    public void setUrlArquivoFtp(String urlArquivoFtp) {
-        this.urlArquivoFtp = urlArquivoFtp;
+    public void setDiretorioArquivoFtp(String urlArquivoFtp) {
+        this.diretorioArquivoFtp = urlArquivoFtp;
     }
 
-    public String getUriArquivoHttp() {
-        return uriArquivoHttp;
-    }
+//    public String getUriArquivoHttp() {
+//        return urlArquivoPreview;
+//    }
 
-    public void setUriArquivoHttp(String uriArquivoHttp) {
-        this.uriArquivoHttp = uriArquivoHttp;
-    }
+//    public void setUriArquivoHttp(String uriArquivoHttp) {
+//        this.urlArquivoPreview = uriArquivoHttp;
+//    }
 
     public Long getTamanhoArquivo() {
         return tamanhoArquivo;
