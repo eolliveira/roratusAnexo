@@ -1,47 +1,48 @@
 package br.ind.ajrorato.domain.model;
 
+import br.ind.ajrorato.domain.model.enuns.TipoAnexo;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
 public class Anexo {
     private Long idAnexo;
-    private String tipoAnexo;
+    ///TODO(DEFINIR TIPOS DE ANEXO)
+    private TipoAnexo tipoAnexo;
     private String tipoConteudo;
+    private String mimeType;
     private String nomeArquivo;
     private String diretorioArquivoFtp;
-
-    //TODO(Precisa? ou só é preciso enviar nas respostas?)
-    //private String urlArquivoPreview;
     private Long tamanhoArquivo;
 
     public Anexo(Long idAnexo, String nomeArquivo, String tipoAnexo, String tipoConteudo) {
         validarAnexo(idAnexo, tipoAnexo, tipoConteudo, nomeArquivo);
         this.idAnexo = idAnexo;
         this.nomeArquivo = StringUtils.cleanPath(nomeArquivo);
-        this.tipoAnexo = tipoAnexo;
+        this.tipoAnexo = TipoAnexo.converterString(tipoAnexo);
         this.tipoConteudo = tipoConteudo;
     }
 
     private void validarAnexo(Long idAnexo, String tipoAnexo, String tipoConteudo, String nomeArquivo) {
 
         if (Objects.isNull(nomeArquivo) || nomeArquivo.isEmpty()) {
-            throw new IllegalArgumentException("Nome do arquivo inválido: " + nomeArquivo);
+            throw new IllegalArgumentException("Nome do arquivo ausente ou inválido: " + nomeArquivo);
         } else if (StringUtils.cleanPath(nomeArquivo).contains("..")) {
             throw new IllegalArgumentException("Nome do arquivo inválido: " + StringUtils.cleanPath(nomeArquivo));
-            //TODO(Criar uma variavel de ambiente para definir o tamanho maximo do nome do arquivo)
         } else if (StringUtils.cleanPath(nomeArquivo).length() > 100) {
             throw new IllegalArgumentException("Nome do arquivo muito longo: " + StringUtils.cleanPath(nomeArquivo) + " (máximo 100 caracteres)");
         }
 
         if (Objects.isNull(idAnexo) || idAnexo <= 0) {
-            throw new IllegalArgumentException("ID do anexo inválido.");
+            throw new IllegalArgumentException("ID do anexo ausente ou inválido.");
         }
+
         if (tipoAnexo == null || tipoAnexo.isEmpty()) {
-            throw new IllegalArgumentException("Tipo de anexo inválido.");
+            throw new IllegalArgumentException("Tipo de anexo ausente ou inválido.");
         }
+
         if (Objects.isNull(tipoConteudo) || tipoConteudo.isEmpty()) {
-            throw new IllegalArgumentException("Tipo de conteúdo inválido.");
+            throw new IllegalArgumentException("Tipo do conteúdo ausente ou inválido.");
         }
     }
 
@@ -49,12 +50,20 @@ public class Anexo {
         return idAnexo;
     }
 
-    public String getTipoAnexo() {
+    public TipoAnexo getTipoAnexo() {
         return tipoAnexo;
     }
 
     public String getTipoConteudo() {
         return tipoConteudo;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
     public String getNomeArquivo() {
@@ -72,14 +81,6 @@ public class Anexo {
     public void setDiretorioArquivoFtp(String urlArquivoFtp) {
         this.diretorioArquivoFtp = urlArquivoFtp;
     }
-
-//    public String getUriArquivoHttp() {
-//        return urlArquivoPreview;
-//    }
-
-//    public void setUriArquivoHttp(String uriArquivoHttp) {
-//        this.urlArquivoPreview = uriArquivoHttp;
-//    }
 
     public Long getTamanhoArquivo() {
         return tamanhoArquivo;

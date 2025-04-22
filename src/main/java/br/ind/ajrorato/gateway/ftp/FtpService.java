@@ -25,6 +25,19 @@ public class FtpService {
             throw new DirectoryNotFoundException("Falha ao criar o diretório: " + e.getMessage());
         }
     }
+
+    protected static String converteByteParaUnidades(long size) {
+        String[] unidades = {"B", "KB", "MB", "GB", "TB"};
+        int indiceUnidade = 0;
+        double tamanhoArquivo = size;
+
+        while (tamanhoArquivo >= 1024 && indiceUnidade < unidades.length - 1) {
+            tamanhoArquivo /= 1024;
+            indiceUnidade++;
+        }
+
+        return String.format("%.1f %s", tamanhoArquivo, unidades[indiceUnidade]);
+    }
 }
 
 

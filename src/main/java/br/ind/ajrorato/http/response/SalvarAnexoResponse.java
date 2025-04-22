@@ -6,10 +6,13 @@ import lombok.Builder;
 public record SalvarAnexoResponse(
         Long idAnexo,
         String nomeArquivo,
+        String mimeType,
         String tipoAnexo,
         String tipoConteudo,
         String urlAnexoFtp,
-        String uriAnexoHttp,
+        String uriAnexoPreview,
+        String uriAnexoDownload,
+        String uriAnexoDelete,
         Long tamanhoArquivo
 ) {
 }

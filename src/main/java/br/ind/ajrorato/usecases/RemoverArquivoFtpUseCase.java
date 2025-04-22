@@ -9,13 +9,13 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class BaixarArquivoFtpUseCase {
+public class RemoverArquivoFtpUseCase {
     private final AnexoRepository anexoRepository;
 
-    public Resource execute(String diretorioArquivo) {
+    public void execute(String diretorioArquivo) {
         if (Objects.isNull(diretorioArquivo))
             throw new IllegalArgumentException("Diretório do arquivo deve ser informado");
 
-        return anexoRepository.baixar(diretorioArquivo);
+        anexoRepository.apagar(diretorioArquivo);
     }
 }
