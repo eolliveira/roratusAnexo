@@ -7,7 +7,7 @@ import br.ind.ajrorato.domain.model.Anexo;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface AnexoRepository {
+public interface AnexoService {
     Anexo salvar(Anexo anexo, MultipartFile arquivo) throws FileUploadException;
     Resource baixar(String diretorioArquivo) throws FileDownloadException;
     void apagar(String diretorioArquivo) throws FileRemoveException;

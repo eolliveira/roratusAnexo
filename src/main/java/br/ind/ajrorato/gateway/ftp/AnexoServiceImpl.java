@@ -5,7 +5,7 @@ import br.ind.ajrorato.domain.exceptions.FileDownloadException;
 import br.ind.ajrorato.domain.exceptions.FileRemoveException;
 import br.ind.ajrorato.domain.exceptions.FileUploadException;
 import br.ind.ajrorato.domain.model.Anexo;
-import br.ind.ajrorato.domain.repositories.AnexoRepository;
+import br.ind.ajrorato.domain.repositories.AnexoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class AnexoRepositoryImpl implements AnexoRepository {
-    private static final Logger logger = LoggerFactory.getLogger(AnexoRepositoryImpl.class);
+public class AnexoServiceImpl implements AnexoService {
+    private static final Logger logger = LoggerFactory.getLogger(AnexoServiceImpl.class);
     private final ClientFtpConfig clientFtpConfig;
 
     @Override
@@ -59,7 +59,7 @@ public class AnexoRepositoryImpl implements AnexoRepository {
             logger.info("Upload realizado: " + anexo.getNomeArquivo() + " -> " + FtpService.converteByteParaUnidades(arquivo.getSize()));
             return anexo;
         } catch (IOException | FileUploadException e) {
-            throw new FileUploadException("Erro ao salvar o arquivo " + anexo.getNomeArquivo() + " no servidor FTP: " + e.getMessage());
+            throw new FileUploadException("Falha ao salvar o arquivo [ " + anexo.getNomeArquivo() + " ] no servidor FTP: " + e.getMessage());
         } finally {
             clientFtpConfig.desconectar(clientFtp);
         }
@@ -68,6 +68,8 @@ public class AnexoRepositoryImpl implements AnexoRepository {
     @Override
     public Resource baixar(String diretorioArquivo) throws FileDownloadException {
         FTPClient clientFtp = clientFtpConfig.executar();
+        String nomeArquivo = diretorioArquivo.substring(diretorioArquivo.lastIndexOf("/") + 1);
+
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             boolean recuperouArquivo = clientFtp.retrieveFile(diretorioArquivo, outputStream);
@@ -75,13 +77,11 @@ public class AnexoRepositoryImpl implements AnexoRepository {
             if (!recuperouArquivo)
                 throw new FileUploadException("arquivo não encontrado.");
 
-            String nomeArquivo = diretorioArquivo.substring(diretorioArquivo.lastIndexOf("/") + 1);
-
             logger.info("Download realizado: " + nomeArquivo + " -> " + FtpService.converteByteParaUnidades(outputStream.size()));
 
             return new NamedByteArrayResource(outputStream.toByteArray(), nomeArquivo);
-        } catch (IOException  | FileUploadException e) {
-            throw new FileDownloadException("Erro ao baixar o arquivo " + diretorioArquivo + " do servidor FTP: " + e.getMessage());
+        } catch (IOException | FileUploadException e) {
+            throw new FileDownloadException("Falha ao baixar o arquivo [ " + nomeArquivo + " ] do servidor FTP: " + e.getMessage());
         } finally {
             clientFtpConfig.desconectar(clientFtp);
         }
@@ -89,29 +89,27 @@ public class AnexoRepositoryImpl implements AnexoRepository {
 
     @Override
     public void apagar(String diretorioArquivo) throws FileRemoveException {
-            FTPClient clientFtp = clientFtpConfig.executar();
+        FTPClient clientFtp = clientFtpConfig.executar();
+        String nomeArquivo = diretorioArquivo.substring(diretorioArquivo.lastIndexOf("/") + 1);
 
-            String nomeArquivo = diretorioArquivo
-                    .substring(diretorioArquivo.lastIndexOf("/") + 1);
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            boolean recuperouArquivo = clientFtp.retrieveFile(diretorioArquivo, outputStream);
 
-            try {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                boolean recuperouArquivo = clientFtp.retrieveFile(diretorioArquivo, outputStream);
+            if (!recuperouArquivo)
+                throw new FileRemoveException("arquivo não encontrado.");
 
-                if (!recuperouArquivo)
-                    throw new FileRemoveException("arquivo não encontrado.");
+            boolean removeuArquivo = clientFtp.deleteFile(diretorioArquivo);
 
-                boolean removeuArquivo = clientFtp.deleteFile(diretorioArquivo);
+            if (!removeuArquivo)
+                throw new FileRemoveException("arquivo não foi removido do servidor ftp.");
 
-                if (!removeuArquivo)
-                    throw new FileRemoveException("arquivo não foi removido do servidor ftp.");
+            logger.info("Arquivo removido: " + nomeArquivo + " -> " + FtpService.converteByteParaUnidades(outputStream.size()));
 
-                logger.info("Arquivo removido: " + nomeArquivo + " -> " + FtpService.converteByteParaUnidades(outputStream.size()));
-
-            } catch (IOException  | FileRemoveException e) {
-                throw new FileRemoveException("Erro ao remover o arquivo " + nomeArquivo + " do servidor FTP: " + e.getMessage());
-            } finally {
-                clientFtpConfig.desconectar(clientFtp);
-            }
+        } catch (IOException | FileRemoveException e) {
+            throw new FileRemoveException("Falha ao remover o arquivo [ " + nomeArquivo + " ] do servidor FTP: " + e.getMessage());
+        } finally {
+            clientFtpConfig.desconectar(clientFtp);
+        }
     }
 }

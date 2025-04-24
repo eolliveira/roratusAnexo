@@ -1,6 +1,6 @@
 package br.ind.ajrorato.gateway.ftp;
 
-import br.ind.ajrorato.domain.exceptions.DirectoryNotFoundException;
+import br.ind.ajrorato.domain.exceptions.FtpDirectoryCreationException;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class FtpService {
 
             clientFtp.changeWorkingDirectory("/");
         } catch (IOException e) {
-            throw new DirectoryNotFoundException("Falha ao criar o diretório: " + e.getMessage());
+            throw new FtpDirectoryCreationException("Erro ao criar diretório: " + remoteDirPath, e);
         }
     }
 

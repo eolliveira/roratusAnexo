@@ -1,15 +1,14 @@
 package br.ind.ajrorato.domain.model;
 
-import br.ind.ajrorato.domain.model.enuns.TipoAnexo;
+import br.ind.ajrorato.domain.model.enuns.TipoConteudo;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
 public class Anexo {
     private Long idAnexo;
-    ///TODO(DEFINIR TIPOS DE ANEXO)
-    private TipoAnexo tipoAnexo;
-    private String tipoConteudo;
+    private String tipoAnexo;
+    private TipoConteudo tipoConteudo;
     private String mimeType;
     private String nomeArquivo;
     private String diretorioArquivoFtp;
@@ -19,8 +18,8 @@ public class Anexo {
         validarAnexo(idAnexo, tipoAnexo, tipoConteudo, nomeArquivo);
         this.idAnexo = idAnexo;
         this.nomeArquivo = StringUtils.cleanPath(nomeArquivo);
-        this.tipoAnexo = TipoAnexo.converterString(tipoAnexo);
-        this.tipoConteudo = tipoConteudo;
+        this.tipoAnexo = tipoAnexo;
+        this.tipoConteudo = TipoConteudo.converterString(tipoConteudo);
     }
 
     private void validarAnexo(Long idAnexo, String tipoAnexo, String tipoConteudo, String nomeArquivo) {
@@ -50,11 +49,11 @@ public class Anexo {
         return idAnexo;
     }
 
-    public TipoAnexo getTipoAnexo() {
+    public String getTipoAnexo() {
         return tipoAnexo;
     }
 
-    public String getTipoConteudo() {
+    public TipoConteudo getTipoConteudo() {
         return tipoConteudo;
     }
 
