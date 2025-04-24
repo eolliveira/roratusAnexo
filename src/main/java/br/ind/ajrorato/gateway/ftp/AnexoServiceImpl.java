@@ -6,6 +6,7 @@ import br.ind.ajrorato.domain.exceptions.FileRemoveException;
 import br.ind.ajrorato.domain.exceptions.FileUploadException;
 import br.ind.ajrorato.domain.model.Anexo;
 import br.ind.ajrorato.domain.repositories.AnexoService;
+import br.ind.ajrorato.gateway.ftp.FileCompress.ComprimirServiceProvider;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -15,6 +16,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +27,14 @@ import java.time.LocalDateTime;
 public class AnexoServiceImpl implements AnexoService {
     private static final Logger logger = LoggerFactory.getLogger(AnexoServiceImpl.class);
     private final ClientFtpConfig clientFtpConfig;
+    private final ComprimirServiceProvider comprimirServiceProvider;
 
     @Override
     public Anexo salvar(Anexo anexo, MultipartFile arquivo) throws FileUploadException {
         FTPClient clientFtp = clientFtpConfig.executar();
 
-        try (InputStream inputStream = arquivo.getInputStream()) {
+        try {
+            InputStream inputStream = arquivo.getInputStream();
             clientFtp.setFileType(FTP.BINARY_FILE_TYPE);
 
             String id_nomeAnexo = anexo.getIdAnexo().toString() + "_" + anexo.getNomeArquivo();
@@ -42,6 +46,12 @@ public class AnexoServiceImpl implements AnexoService {
             String diretorioAnexo = diretorioPastas + "/" + id_nomeAnexo;
 
             FtpService.criaDiretorioInexistente(diretorioPastas, clientFtp);
+
+            if (anexo.getTipoConteudo().getCompress()) {
+                var servicoCompressao = comprimirServiceProvider.execute(anexo.getTipoConteudo());
+                byte[] arquivoComprimido = servicoCompressao.execute(arquivo.getBytes());
+                inputStream = new ByteArrayInputStream(arquivoComprimido);
+            }
 
             boolean arquivoSalvo = clientFtp.storeFile(diretorioAnexo, inputStream);
 

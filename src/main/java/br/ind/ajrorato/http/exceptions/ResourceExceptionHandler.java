@@ -1,9 +1,6 @@
 package br.ind.ajrorato.http.exceptions;
 
-import br.ind.ajrorato.domain.exceptions.FileDownloadException;
-import br.ind.ajrorato.domain.exceptions.FileRemoveException;
-import br.ind.ajrorato.domain.exceptions.FileUploadException;
-import br.ind.ajrorato.domain.exceptions.FtpDirectoryCreationException;
+import br.ind.ajrorato.domain.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -100,6 +97,20 @@ public class ResourceExceptionHandler {
                         .status(httpStatus.value())
                         .error(httpStatus.getReasonPhrase())
                         .message("O tamanho do arquivo excede o limite permitido de " + maxUploadSize)
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    @ExceptionHandler(FileCompressionException.class)
+    public ResponseEntity<StandardError> handleBusinessException(FileCompressionException ex, HttpServletRequest request) {
+        var httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+        return ResponseEntity
+                .status(httpStatus.value())
+                .body(StandardError.builder()
+                        .timestamp(Instant.now())
+                        .status(httpStatus.value())
+                        .error(httpStatus.getReasonPhrase())
+                        .message(ex.getMessage())
                         .path(request.getRequestURI())
                         .build());
     }

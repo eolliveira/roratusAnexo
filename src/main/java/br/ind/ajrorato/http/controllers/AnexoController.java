@@ -1,6 +1,5 @@
 package br.ind.ajrorato.http.controllers;
 
-
 import br.ind.ajrorato.config.SecurityConfig;
 import br.ind.ajrorato.domain.model.Anexo;
 import br.ind.ajrorato.domain.model.enuns.TipoConteudo;
@@ -35,11 +34,11 @@ import java.util.Objects;
 @Tag(name = "Controlador de arquivos")
 @SecurityRequirement(name = SecurityConfig.SECURITY)
 public class AnexoController {
+    private static final String EXAMPLE_PATH = "ACORDO/IMAGEM/2025/4/1_baixados.jpeg";
+
     private final SalvarArquivoFtpUseCase salvarArquivoFtpUseCase;
     private final BaixarArquivoFtpUseCase baixarArquivoFtpUseCase;
     private final RemoverArquivoFtpUseCase removerArquivoFtpUseCase;
-
-    private static final String EXAMPLE_PATH = "ACORDO/IMAGEM/2025/4/1_baixados.jpeg";
 
     @Value("${url.service.anexoftp}")
     private String urlServidorFtp;
@@ -107,7 +106,7 @@ public class AnexoController {
             @Parameter(required = true, description = "ID do anexo associado ao arquivo", example = "0001")
             @RequestParam(value = "idAnexo", required = false) Long idAnexo,
 
-            @Parameter(required = true, example = "ACORDOCRM")
+            @Parameter(required = true, example = "ACORDO")
             @RequestParam(value = "tipoAnexo", required = false) String tipoAnexo,
 
             @Parameter(required = true)
@@ -124,21 +123,16 @@ public class AnexoController {
                 .queryParam("path", anexoSalvo.getDiretorioArquivoFtp())
                 .toUriString();
 
-        String anexoDeleteUri = ServletUriComponentsBuilder.fromUri(URI.create(urlServidorFtp))
-                .path("/api/anexo/delete")
-                .queryParam("path", anexoSalvo.getDiretorioArquivoFtp())
-                .toUriString();
-
         return ResponseEntity.status(HttpStatus.CREATED).body(SalvarAnexoResponse.builder()
                 .idAnexo(anexoSalvo.getIdAnexo())
                 .nomeArquivo(anexoSalvo.getNomeArquivo())
                 .mimeType(anexoSalvo.getMimeType())
                 .tipoAnexo(anexoSalvo.getTipoAnexo())
                 .tipoConteudo(anexoSalvo.getTipoConteudo().toString())
+                .diretorioAnexoFtp(anexoSalvo.getDiretorioArquivoFtp())
                 .urlAnexoFtp("ftp://" + diretorioServidorFtp + "/" + anexoSalvo.getDiretorioArquivoFtp())
                 .uriAnexoPreview(anexoPreviewUri)
                 .uriAnexoDownload(anexoDownloadUri)
-                .uriAnexoDelete(anexoDeleteUri)
                 .tamanhoArquivo(anexoSalvo.getTamanhoArquivo())
                 .build());
     }
