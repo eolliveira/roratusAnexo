@@ -3,7 +3,9 @@ package br.ind.ajrorato.domain.model;
 import br.ind.ajrorato.domain.model.enuns.TipoConteudo;
 import org.springframework.util.StringUtils;
 
+import java.text.Normalizer;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Anexo {
     private Long idAnexo;
@@ -17,7 +19,7 @@ public class Anexo {
     public Anexo(Long idAnexo, String nomeArquivo, String tipoAnexo, String tipoConteudo) {
         validarAnexo(idAnexo, tipoAnexo, tipoConteudo, nomeArquivo);
         this.idAnexo = idAnexo;
-        this.nomeArquivo = StringUtils.cleanPath(nomeArquivo);
+        this.nomeArquivo = StringUtils.cleanPath(removerAcentos(nomeArquivo));
         this.tipoAnexo = tipoAnexo;
         this.tipoConteudo = TipoConteudo.converterString(tipoConteudo);
     }
@@ -43,6 +45,12 @@ public class Anexo {
         if (Objects.isNull(tipoConteudo) || tipoConteudo.isEmpty()) {
             throw new IllegalArgumentException("Tipo do conteúdo ausente ou inválido.");
         }
+    }
+
+    private String removerAcentos(String texto) {
+        String normalizado = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(normalizado).replaceAll("").replaceAll("[´`^~¨]", "");
     }
 
     public Long getIdAnexo() {

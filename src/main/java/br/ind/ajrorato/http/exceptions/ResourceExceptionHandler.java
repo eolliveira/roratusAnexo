@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.Instant;
 
@@ -89,6 +90,20 @@ public class ResourceExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<StandardError> handleBusinessException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        var httpStatus = HttpStatus.PAYLOAD_TOO_LARGE;
+        return ResponseEntity
+                .status(httpStatus.value())
+                .body(StandardError.builder()
+                        .timestamp(Instant.now())
+                        .status(httpStatus.value())
+                        .error(httpStatus.getReasonPhrase())
+                        .message("O tamanho do arquivo excede o limite permitido de " + maxUploadSize)
+                        .path(request.getRequestURI())
+                        .build());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<StandardError> handleBusinessException(MultipartException ex, HttpServletRequest request) {
         var httpStatus = HttpStatus.PAYLOAD_TOO_LARGE;
         return ResponseEntity
                 .status(httpStatus.value())

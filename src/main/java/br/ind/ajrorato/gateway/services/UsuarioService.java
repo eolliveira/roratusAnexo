@@ -1,6 +1,6 @@
 package br.ind.ajrorato.gateway.services;
 
-import br.ind.ajrorato.gateway.repository.SegurancaRepository;
+import br.ind.ajrorato.gateway.database.repository.SegurancaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

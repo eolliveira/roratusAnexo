@@ -1,4 +1,4 @@
-package br.ind.ajrorato.gateway.repository;
+package br.ind.ajrorato.gateway.database.repository;
 
 import br.ind.ajrorato.gateway.database.entity.SegurancaEntity;
 import org.springframework.data.repository.CrudRepository;

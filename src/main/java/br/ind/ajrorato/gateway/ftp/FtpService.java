@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class FtpService {
 
-    protected static void criaDiretorioInexistente(String remoteDirPath, FTPClient clientFtp) {
+    public static void criaDiretorioInexistente(String remoteDirPath, FTPClient clientFtp) {
         try {
             String[] dirs = remoteDirPath.split("/");
             String currentDir = "";

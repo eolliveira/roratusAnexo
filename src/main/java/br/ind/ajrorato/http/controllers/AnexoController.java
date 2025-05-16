@@ -34,7 +34,7 @@ import java.util.Objects;
 @Tag(name = "Controlador de arquivos")
 @SecurityRequirement(name = SecurityConfig.SECURITY)
 public class AnexoController {
-    private static final String EXAMPLE_PATH = "ACORDO/IMAGEM/2025/4/1_baixados.jpeg";
+    private static final String EXAMPLE_PATH = "TESTESWAGGER/IMAGEM/2025/4/arquivoTeste.jpeg";
 
     private final SalvarArquivoFtpUseCase salvarArquivoFtpUseCase;
     private final BaixarArquivoFtpUseCase baixarArquivoFtpUseCase;
@@ -51,8 +51,8 @@ public class AnexoController {
     @ApiResponse(responseCode = "400", description = "Requisição inválida")
     @ApiResponse(responseCode = "422", description = "Erro ao processar a requisição")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @GetMapping("/preview")
-    public ResponseEntity<Resource> visualizarAnexoFtp(
+    @GetMapping("/recovery")
+    public ResponseEntity<Resource> recuperarAnexoFtp(
             @Parameter(description = "Diretório do arquivo no servidor FTP", example = EXAMPLE_PATH, required = true)
             @RequestParam(value = "path", required = false) String path, HttpServletRequest request) {
         Resource resource = baixarArquivoFtpUseCase.execute(path);
@@ -106,15 +106,15 @@ public class AnexoController {
             @Parameter(required = true, description = "ID do anexo associado ao arquivo", example = "0001")
             @RequestParam(value = "idAnexo", required = false) Long idAnexo,
 
-            @Parameter(required = true, example = "ACORDO")
+            @Parameter(required = true, example = "TESTESWAGGER")
             @RequestParam(value = "tipoAnexo", required = false) String tipoAnexo,
 
             @Parameter(required = true)
             @RequestParam(value = "tipoConteudo", required = false) TipoConteudo tipoConteudo) {
         Anexo anexoSalvo = salvarArquivoFtpUseCase.execute(idAnexo, tipoAnexo, tipoConteudo.toString(), arquivo);
 
-        String anexoPreviewUri = ServletUriComponentsBuilder.fromUri(URI.create(urlServidorFtp))
-                .path("/api/anexo/preview")
+        String anexoRecoveryUri = ServletUriComponentsBuilder.fromUri(URI.create(urlServidorFtp))
+                .path("/api/anexo/recovery")
                 .queryParam("path", anexoSalvo.getDiretorioArquivoFtp())
                 .toUriString();
 
@@ -131,7 +131,7 @@ public class AnexoController {
                 .tipoConteudo(anexoSalvo.getTipoConteudo().toString())
                 .diretorioAnexoFtp(anexoSalvo.getDiretorioArquivoFtp())
                 .urlAnexoFtp("ftp://" + diretorioServidorFtp + "/" + anexoSalvo.getDiretorioArquivoFtp())
-                .uriAnexoPreview(anexoPreviewUri)
+                .uriAnexoRecovery(anexoRecoveryUri)
                 .uriAnexoDownload(anexoDownloadUri)
                 .tamanhoArquivo(anexoSalvo.getTamanhoArquivo())
                 .build());
